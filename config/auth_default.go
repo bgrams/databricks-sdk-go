@@ -12,6 +12,7 @@ import (
 var authProviders = []CredentialsStrategy{
 	PatCredentials{},
 	BasicCredentials{},
+	FederatedCredentials{},
 	M2mCredentials{},
 	DatabricksCliCredentials,
 	MetadataServiceCredentials{},

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
@@ -98,8 +99,11 @@ type Config struct {
 	// versions of Go SDK.
 	AzureLoginAppID string `name:"azure_login_app_id" env:"DATABRICKS_AZURE_LOGIN_APP_ID" auth:"azure"`
 
-	ClientID     string `name:"client_id" env:"DATABRICKS_CLIENT_ID" auth:"oauth" auth_types:"oauth-m2m"`
+	ClientID     string `name:"client_id" env:"DATABRICKS_CLIENT_ID" auth:"oauth" auth_types:"oauth-m2m,oauth-federated"`
 	ClientSecret string `name:"client_secret" env:"DATABRICKS_CLIENT_SECRET" auth:"oauth,sensitive" auth_types:"oauth-m2m"`
+
+	SubjectToken     string `name:"subject_token" env:"DATABRICKS_SUBJECT_TOKEN" auth:"oauth,sensitive" auth_types:"oauth-federated"`
+	SubjectTokenFile string `name:"subject_token_file" env:"DATABRICKS_SUBJECT_TOKEN_FILE" auth:"oauth" auth_types:"oauth-federated"`
 
 	// Path to the Databricks CLI (version >= 0.100.0).
 	DatabricksCliPath string `name:"databricks_cli_path" env:"DATABRICKS_CLI_PATH" auth_types:"databricks-cli"`
@@ -469,4 +473,15 @@ func (c *Config) getOAuthArgument() (u2m.OAuthArgument, error) {
 		return u2m.NewBasicAccountOAuthArgument(c.Host, c.AccountID)
 	}
 	return u2m.NewBasicWorkspaceOAuthArgument(c.Host)
+}
+
+func (c *Config) getSubjectToken() (string, error) {
+	if c.SubjectTokenFile != "" {
+		data, err := os.ReadFile(c.SubjectTokenFile)
+		if err != nil {
+			return "", err
+		}
+		return string(data), nil
+	}
+	return c.SubjectToken, nil
 }
