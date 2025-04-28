@@ -56,7 +56,8 @@ func NewFederatedTokenSource(ctx context.Context, config *Config) (*FederatedTok
 		credentialConfig: &oauth2.Config{
 			ClientID: config.ClientID,
 			Endpoint: oauth2.Endpoint{
-				TokenURL: endpoints.TokenEndpoint,
+				AuthStyle: oauth2.AuthStyleInParams,
+				TokenURL:  endpoints.TokenEndpoint,
 			},
 		},
 		cfg: config,
