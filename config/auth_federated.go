@@ -9,6 +9,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// FederatedCredentials is a credential strategy that supports RFC8693 token exchange for a provided
+// JWT when account or service principal federation policies are configured. The token may be supplied
+// directly via Config.SubjectToken, or loaded from a file configured in Config.SubjectTokenFile to
+// support token refreshes from an external process for long-running applications. Account federation
+// is used by default, and service principal federation is used when the Config.ClientID is non-empty.
 type FederatedCredentials struct{}
 
 func (c FederatedCredentials) Name() string {
@@ -65,6 +70,7 @@ func (s *FederatedTokenSource) Token() (*oauth2.Token, error) {
 		return nil, err
 	}
 
+	// Pending official docs: https://github.com/golang/oauth2/issues/409
 	authCodeOpts := []oauth2.AuthCodeOption{
 		oauth2.SetAuthURLParam("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange"),
 		oauth2.SetAuthURLParam("scope", "all-apis"),
